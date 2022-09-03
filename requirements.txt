@@ -12,4 +12,4 @@ snscrape
 flair
 protobuf==3.20.1
 prophet
-keras
+tensorflow
