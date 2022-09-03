@@ -10,3 +10,4 @@ streamlit == 1.0.0
 yfinance == 0.1.64
 snscrape
 flair
+protobuf==3.20.1
