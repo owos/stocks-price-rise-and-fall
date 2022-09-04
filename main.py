@@ -48,8 +48,10 @@ END = sub_columns[1].date_input("To", value=YESTERDAY, max_value=YESTERDAY, min_
 START = Stock.nearest_business_day(START)
 END = Stock.nearest_business_day(END)
 # ---------------stock selection------------------
-STOCKS = np.array([ "GOOG", "GME", "FB","AAPL",'TSLA', 'UPS', 'KO', 'WMT', 'CVX', 'PFE', 'V'])  # TODO : include all stocks
+STOCKS = np.array([ 'GOOGLE', 'TESLA', 'MICROSOFT', 'META', 'COCA COLA', 'VISA', 'PFIZER', 'CHEVRON', 'WALMART', 'UNITED PARCEL SERVICES'])  # TODO : include all stocks
 SYMB = window_selection_c.selectbox("select stock", STOCKS)
+stocks_name = {'GOOGLE':'GOOG', 'TESLA':'TSLA', 'MICROSOFT':'MSFT', 'META':'META', 'COKA COLA':'KO', 'VISA':'V', 'PFIZER':'PFE', 
+                'CHEVRON':'CVX', 'WALMART':'WMT', 'UNITED PARCEL SERVICES':'UPS'}
 
 
 
@@ -64,7 +66,7 @@ today = date.today()
 date_today = today.strftime("%Y-%m-%d")
 date_start = str(START)#'2015-01-01'
 
-stock = yf.download(SYMB, start=date_start, end=str(END)).reset_index()
+stock = yf.download(stocks_name[SYMB], start=date_start, end=str(END)).reset_index()
 
 st.subheader('Prices from the last 10 days')
 st.write(stock.tail(10))
@@ -77,9 +79,9 @@ ax1.xaxis.set_major_locator(years)
 x = stock.index
 y = stock['Close']
 ax1.fill_between(x, 0, y, color='#b9e1fa')
-ax1.legend(['Google'], fontsize=12)
-plt.title('Google' + ' from '+ date_start + ' to ' + date_today, fontsize=16)
-plt.plot(y, color='#039dfc', label='Google', linewidth=1.0)
+ax1.legend([SYMB], fontsize=12)
+plt.title(SYMB + ' from '+ date_start + ' to ' + date_today, fontsize=16)
+plt.plot(y, color='#039dfc', label=SYMB, linewidth=1.0)
 plt.ylabel('Stocks', fontsize=12)
 st.pyplot(fig)
 
@@ -112,6 +114,9 @@ train_test_forecast_c = st.sidebar.container()
 
 
 pred_type = window_selection_c.selectbox("Prediction Type", ['Predict Price', 'Predict Sentiment'])
+@st.cache
+def load_model():
+	  return keras.models.load_model('stock_50epoch.h5')
 
 if pred_type== 'Predict Price':
     train_test_forecast_c.markdown("## Make prediction")
@@ -134,7 +139,7 @@ if pred_type== 'Predict Price':
         # Create an empty list and Append past N days
         X_test_new = []
         X_test_new.append(last_N_days_scaled)
-        model =  keras.models.load_model('stock_50epoch.h5')
+        model =  load_model()
 
         # Convert the X_test data set to a numpy array and reshape the data
         pred_price_scaled = model.predict(np.array(X_test_new))
@@ -147,7 +152,7 @@ if pred_type== 'Predict Price':
         change_percent = np.round(100 - (price_today * 100)/predicted_price, 2)
 
         plus = '+'; minus = ''
-        st.write(f'The close price for {"Google"} at {today} was {price_today}')
+        st.write(f'The close price for {stocks_name[STOCKS]} at {today} was {price_today}')
         st.write(f'The predicted close price is {predicted_price} ({plus if change_percent > 0 else minus}{change_percent}%)')
         
         st.markdown("### Trend prediction")
