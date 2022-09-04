@@ -114,7 +114,7 @@ train_test_forecast_c = st.sidebar.container()
 
 
 pred_type = window_selection_c.selectbox("Prediction Type", ['Predict Price', 'Predict Sentiment'])
-@st.cache
+@st.cache(hash_funcs={"MyUnhashableClass": lambda _: None})
 def load_model():
 	  return keras.models.load_model('stock_50epoch.h5')
 
